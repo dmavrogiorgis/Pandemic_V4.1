@@ -18,7 +18,7 @@ public class Agent {
 		this.myBoard = Client.copyBoard(br);
 	}
 
-	/* 1) HERE WE FIND THE NEAREST CITY WITH REASERCH CENTER */
+	/* 1) */
 	public double heuristicSurvive() {
 		double evaluateState = 0;
 
@@ -65,22 +65,6 @@ public class Agent {
 		return totalValue;
 	}
 
-	public int getDiscardedPlayerDeck(String Color) {
-		ArrayList<String> PlayerDeck = getMyBoard().getPlayersDeck();
-		int ColorCounter = 12;
-		String cityColor = null;
-
-		for (int i = 0; i < PlayerDeck.size(); i++) {
-			if (PlayerDeck.get(i).equals("Epidemic"))
-				continue;
-            cityColor = getMyBoard().colorOf(PlayerDeck.get(i)); 
-			if (cityColor.equals(Color)) {
-				ColorCounter--;
-			}
-		}
-		return ColorCounter;
-	}
-
 	/* 4) */
 	public double heuristicDiscard() {
 		String[] colors = getMyBoard().getAllColors();
@@ -110,14 +94,20 @@ public class Agent {
 
 	/* 6) */
 	public double heuristicDistance() {
-        double dist = 0;
-        Vector<City> Cities = getMyBoard().getCityList(); 
+		Vector<City> Cities = getMyBoard().getCityList(); 
+
+		int cardsPlayedSoFar = getMyBoard().getPlayersDeck().size();
+		int epidemicCards = getMyBoard().getNumberOfEpidemicCards();
+		int totalCityCards = getMyBoard().getCitiesCount();
+		int constant = 2256;
+
+		double dist = 0;
 		for (int i = 0; i < getMyBoard().getCitiesCount(); i++) {
             ArrayList<citiesWithDistancesObj> distanceMap = new ArrayList<citiesWithDistancesObj>();
             distanceMap= Client.buildDistanceMap(getMyBoard(), Cities.get(i).getName(), distanceMap);
             
 			for (int j = 0; j < getMyBoard().getCitiesCount(); j++) {
-                    dist += (Client.distanceFrom(Cities.get(j).getName(),distanceMap)/2256)*(getMyBoard().getPlayersDeck().size()/52);
+                    dist += (Client.distanceFrom(Cities.get(j).getName(),distanceMap)/constant)*(cardsPlayedSoFar/(totalCityCards + epidemicCards));
 			}
 		}
 		return dist;
@@ -152,6 +142,22 @@ public class Agent {
         return hstate;
     }
 
+	public int getDiscardedPlayerDeck(String Color) {
+		ArrayList<String> PlayerDeck = getMyBoard().getPlayersDeck();
+		int ColorCounter = 12;
+		String cityColor = null;
+
+		for (int i = 0; i < PlayerDeck.size(); i++) {
+			if (PlayerDeck.get(i).equals("Epidemic"))
+				continue;
+            cityColor = getMyBoard().colorOf(PlayerDeck.get(i)); 
+			if (cityColor.equals(Color)) {
+				ColorCounter--;
+			}
+		}
+		return ColorCounter;
+	}
+	
 	public int distanceOfCities(int playerID) {
 		int distance = 0;
 
