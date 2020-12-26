@@ -359,6 +359,7 @@ public class Client {
 
 		}
 	}
+
 	
 	/* GET ALL POSSIBLE MOVES */ 
 	public static ArrayList<String> getMoves(int playerID, Board board) {
@@ -418,7 +419,8 @@ public class Client {
 		}
 		return myMovesList;
 	}
-
+	
+	/* THESE ARE USED TO CHECK IF A PLAYER MOVE IS LEGAL */
 	/* IS LEGAL TO USE DRIVE TO A CITY */ 
 	public static boolean isLegalDriveTo(int playerID, String destination, Board board) {
 		City currentCity = board.searchForCity(board.getPawnsLocations(playerID));
