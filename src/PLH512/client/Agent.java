@@ -18,7 +18,7 @@ public class Agent {
 		this.myBoard = Client.copyBoard(br);
 	}
 
-	/* 1) */
+	/* 1) NORMALIZATION OF DISTANCE TO ALL THE CITIES USING THE NUMBER OF CITY CUBES DIVIED BY TOTAL STATE CUBES*/
 	public double heuristicSurvive() {
 		double evaluateState = 0;
 
@@ -29,7 +29,7 @@ public class Agent {
 		return evaluateState;
 	}
 
-	/* 2) */
+	/* 2) DISTANCE TO THE CLOSEST CITY WITH RS IN IT */
 	public double heuristicCure() {
 		double evaluateState = 0;
 
@@ -39,7 +39,7 @@ public class Agent {
 		return evaluateState;
 	}
 
-	/* 3) */
+	/* 3) MIN NUMBER OF CARDS MISSING TO DISCOVER A CURE FOR EACH DISEASE COLOR AMONG PLAYERS' HANDS */
 	public int heuristicCards() {
 		String[] colors = getMyBoard().getAllColors();
 		int minColorCounter = Integer.MAX_VALUE;
@@ -65,7 +65,7 @@ public class Agent {
 		return totalValue;
 	}
 
-	/* 4) */
+	/* 4) NUMBER OF DISCARDED CARDS FOR EACH OF THE ACTIVE DISEASES STILL MISSING A CURE */
 	public double heuristicDiscard() {
 		String[] colors = getMyBoard().getAllColors();
 		int totalValue = 0;
@@ -79,7 +79,7 @@ public class Agent {
 		return totalValue;
 	}
 
-	/* 5) GET THE TOTAL CUBES IN CURRENT STATE OF THE GAME */
+	/* 5) TOTAL NUMBER OF INFECTIONS IN CURRENT STATE */
 	public int heuristicInfection() {
 		Vector<City> list = getMyBoard().getCityList();
 		Iterator<City> value = list.iterator();
@@ -92,7 +92,7 @@ public class Agent {
 		return totalCubes;
 	}
 
-	/* 6) */
+	/* 6) AVERAGE DISTANCE REQUIRED TO MOVE FROM EACH CITY TO ANOTHER ASSOSIATED WITH THE NUMBER OF CARDS PLAYED */
 	public double heuristicDistance() {
 		Vector<City> Cities = getMyBoard().getCityList(); 
 
@@ -113,7 +113,7 @@ public class Agent {
 		return dist;
 	}
 
-	/* 7) */
+	/* 7) COUNTS THE NUMBER OF ACTIVE DISEASES WHICH ARE STILL LACKING A CURE */
 	public int heuristicCures() {
 		Board board = getMyBoard();
 		String[] colors = getMyBoard().getAllColors();
@@ -126,7 +126,8 @@ public class Agent {
 		}
 		return totalActives;
     }
-    
+	
+	/* 8) TOTAL EVALUATION */
     public double Evaluation(){
         double hstate = 0;
         double hsurv = heuristicSurvive(); 
