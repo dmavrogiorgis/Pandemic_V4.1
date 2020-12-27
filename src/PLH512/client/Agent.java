@@ -19,44 +19,44 @@ public class Agent {
 	}
 
 	/* 1) NORMALIZATION OF DISTANCE TO ALL THE CITIES USING THE NUMBER OF CITY CUBES DIVIED BY TOTAL STATE CUBES*/
-	public double heuristicSurvive() {
+	public double heuristicSurvive(Board board) {
 		double evaluateState = 0;
 
-		for (int i = 0; i < getMyBoard().getNumberOfPlayers(); i++) {
-			evaluateState += distanceOfCities(i) / heuristicInfection();
+		for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+			evaluateState += distanceOfCities(board, i) / heuristicInfection(board);
 		}
 
 		return evaluateState;
 	}
 
 	/* 2) DISTANCE TO THE CLOSEST CITY WITH RS IN IT */
-	public double heuristicCure() {
+	public double heuristicCure(Board board) {
 		double evaluateState = 0;
 
-		for (int i = 0; i < getMyBoard().getNumberOfPlayers(); i++) {
-			evaluateState += CloserCityWithRS(BuildPlayerDistanceMap(i));
+		for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+			evaluateState += CloserCityWithRS(BuildPlayerDistanceMap(board, i));
 		}
 		return evaluateState;
 	}
 
 	/* 3) MIN NUMBER OF CARDS MISSING TO DISCOVER A CURE FOR EACH DISEASE COLOR AMONG PLAYERS' HANDS */
-	public int heuristicCards() {
-		String[] colors = getMyBoard().getAllColors();
+	public int heuristicCards(Board board) {
+		String[] colors = board.getAllColors();
 		int minColorCounter = Integer.MAX_VALUE;
 		int totalValue = 0;
 		int ColorCounter = 0;
 		int actives = 0;
 		int R = 0;
 
-		actives = heuristicCures();
+		actives = heuristicCures(board);
 		for (int i = 0; i < colors.length; i++) {
-			for (int j = 0; j < getMyBoard().getNumberOfPlayers(); j++) {
-				if (getMyBoard().getRoleOf(j).equals("Scientist")) {
+			for (int j = 0; j < board.getNumberOfPlayers(); j++) {
+				if (board.getRoleOf(j).equals("Scientist")) {
 					R = 4;
 				} else {
 					R = 5;
 				}
-				ColorCounter = R - Client.cardsCounterOfColor(getMyBoard(), j, colors[i]);
+				ColorCounter = R - Client.cardsCounterOfColor(board, j, colors[i]);
 				if (minColorCounter > ColorCounter)
 					minColorCounter = ColorCounter;
 			}
@@ -66,22 +66,22 @@ public class Agent {
 	}
 
 	/* 4) NUMBER OF DISCARDED CARDS FOR EACH OF THE ACTIVE DISEASES STILL MISSING A CURE */
-	public double heuristicDiscard() {
-		String[] colors = getMyBoard().getAllColors();
+	public double heuristicDiscard(Board board) {
+		String[] colors = board.getAllColors();
 		int totalValue = 0;
 		int actives = 0;
 
-		actives = heuristicCures();
+		actives = heuristicCures(board);
 
 		for (int i = 0; i < colors.length; i++) {
-			totalValue += actives * getDiscardedPlayerDeck(colors[i]);
+			totalValue += actives * getDiscardedPlayerDeck(board, colors[i]);
 		}
 		return totalValue;
 	}
 
 	/* 5) TOTAL NUMBER OF INFECTIONS IN CURRENT STATE */
-	public int heuristicInfection() {
-		Vector<City> list = getMyBoard().getCityList();
+	public int heuristicInfection(Board board) {
+		Vector<City> list = board.getCityList();
 		Iterator<City> value = list.iterator();
 
 		int totalCubes = 0;
@@ -93,20 +93,20 @@ public class Agent {
 	}
 
 	/* 6) AVERAGE DISTANCE REQUIRED TO MOVE FROM EACH CITY TO ANOTHER ASSOSIATED WITH THE NUMBER OF CARDS PLAYED */
-	public double heuristicDistance() {
-		Vector<City> Cities = getMyBoard().getCityList(); 
+	public double heuristicDistance(Board board) {
+		Vector<City> Cities = board.getCityList(); 
 
-		int cardsPlayedSoFar = getMyBoard().getPlayersDeck().size();
-		int epidemicCards = getMyBoard().getNumberOfEpidemicCards();
-		int totalCityCards = getMyBoard().getCitiesCount();
+		int cardsPlayedSoFar = board.getPlayersDeck().size();
+		int epidemicCards = board.getNumberOfEpidemicCards();
+		int totalCityCards = board.getCitiesCount();
 		int constant = 2256;
 
 		double dist = 0;
-		for (int i = 0; i < getMyBoard().getCitiesCount(); i++) {
+		for (int i = 0; i < board.getCitiesCount(); i++) {
             ArrayList<citiesWithDistancesObj> distanceMap = new ArrayList<citiesWithDistancesObj>();
-            distanceMap= Client.buildDistanceMap(getMyBoard(), Cities.get(i).getName(), distanceMap);
+            distanceMap= Client.buildDistanceMap(board, Cities.get(i).getName(), distanceMap);
             
-			for (int j = 0; j < getMyBoard().getCitiesCount(); j++) {
+			for (int j = 0; j < board.getCitiesCount(); j++) {
                     dist += (Client.distanceFrom(Cities.get(j).getName(),distanceMap)/constant)*(cardsPlayedSoFar/(totalCityCards + epidemicCards));
 			}
 		}
@@ -114,9 +114,8 @@ public class Agent {
 	}
 
 	/* 7) COUNTS THE NUMBER OF ACTIVE DISEASES WHICH ARE STILL LACKING A CURE */
-	public int heuristicCures() {
-		Board board = getMyBoard();
-		String[] colors = getMyBoard().getAllColors();
+	public int heuristicCures(Board board) {
+		String[] colors = board.getAllColors();
 
 		int totalActives = 0;
 		for (int i = 0; i < colors.length; i++) {
@@ -128,30 +127,30 @@ public class Agent {
     }
 	
 	/* 8) TOTAL EVALUATION */
-    public double Evaluation(){
+    public double Evaluation(Board board){
         double hstate = 0;
-        double hsurv = heuristicSurvive(); 
-        double hcure = heuristicCure();
-        double hcards = heuristicCards(); 
-        double hdisc = heuristicDiscard();
-        double hinf = heuristicInfection();
-        double hdist = heuristicDistance();
-        double hcures = heuristicCures();
+        double hsurv = heuristicSurvive(board); 
+        double hcure = heuristicCure(board);
+        double hcards = heuristicCards(board); 
+        double hdisc = heuristicDiscard(board);
+        double hinf = heuristicInfection(board);
+        double hdist = heuristicDistance(board);
+        double hcures = heuristicCures(board);
 
         hstate = 0.5*hsurv + 0.5*hcure + 1*hcards + 0.5*hdisc + 0.6*hinf + 0.6*hdist + 24*hcures;
         
         return hstate;
     }
 
-	public int getDiscardedPlayerDeck(String Color) {
-		ArrayList<String> PlayerDeck = getMyBoard().getPlayersDeck();
+	public int getDiscardedPlayerDeck(Board board, String Color) {
+		ArrayList<String> PlayerDeck = board.getPlayersDeck();
 		int ColorCounter = 12;
 		String cityColor = null;
 
 		for (int i = 0; i < PlayerDeck.size(); i++) {
 			if (PlayerDeck.get(i).equals("Epidemic"))
 				continue;
-            cityColor = getMyBoard().colorOf(PlayerDeck.get(i)); 
+            cityColor = board.colorOf(PlayerDeck.get(i)); 
 			if (cityColor.equals(Color)) {
 				ColorCounter--;
 			}
@@ -159,23 +158,23 @@ public class Agent {
 		return ColorCounter;
 	}
 	
-	public int distanceOfCities(int playerID) {
+	public int distanceOfCities(Board board, int playerID) {
 		int distance = 0;
 
-		ArrayList<citiesWithDistancesObj> distanceMap = BuildPlayerDistanceMap(playerID);
+		ArrayList<citiesWithDistancesObj> distanceMap = BuildPlayerDistanceMap(board, playerID);
 		for (int i = 0; i < distanceMap.size(); i++) {
 			String CityName = distanceMap.get(i).getName();
-			distance += Client.distanceFrom(CityName, distanceMap) * totalCubes(getMyBoard().searchForCity(CityName));
+			distance += Client.distanceFrom(CityName, distanceMap) * totalCubes(board.searchForCity(CityName));
 		}
 
 		return distance;
 	}
 
-	public ArrayList<citiesWithDistancesObj> BuildPlayerDistanceMap(int playerID) {
+	public ArrayList<citiesWithDistancesObj> BuildPlayerDistanceMap(Board board, int playerID) {
 
-		String playerCurrentCity = getMyBoard().getPawnsLocations(playerID);
+		String playerCurrentCity = board.getPawnsLocations(playerID);
 		ArrayList<citiesWithDistancesObj> dM = new ArrayList<citiesWithDistancesObj>();
-		dM = Client.buildDistanceMap(getMyBoard(), playerCurrentCity, dM);
+		dM = Client.buildDistanceMap(board, playerCurrentCity, dM);
 		return dM;
 	}
 

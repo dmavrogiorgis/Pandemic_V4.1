@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import PLH512.server.Board;
 import PLH512.server.City;
+import PLH512.mcts.*;
 
 public class Client {
 	final static int ServerPort = 64240;
@@ -122,9 +123,9 @@ public class Client {
 							boolean tryToTreatMedium = false;
 							String destinationMedium = null;
 
-							double adam_eva = ag.Evaluation();
+							double adam_eva = ag.Evaluation(myBoard);
 							System.out.println("AGENT EVALUATION: " + adam_eva);
-							ArrayList<String> al = getMoves(myPlayerID,  myBoard);
+							ArrayList<State> al = getMoves(myPlayerID,  myBoard);
 							
 							System.err.println("ARRAY LIST SIZE: " + al.size());
 							
@@ -359,11 +360,14 @@ public class Client {
 
 		}
 	}
-
+	public void MoveEvaulation(State s){
+		
+		
+	}
 	
 	/* GET ALL POSSIBLE MOVES */ 
-	public static ArrayList<String> getMoves(int playerID, Board board) {
-		ArrayList<String> myMovesList = new ArrayList<String>();
+	public static ArrayList<State> getMoves(int playerID, Board board) {
+		ArrayList<State> allStates = new ArrayList<State>();
 		ArrayList<String> myHand = board.getHandOf(playerID);
 
 		String curCityName = board.getPawnsLocations(playerID);
@@ -373,51 +377,84 @@ public class Client {
 		String maxDisease = currentCity.getMaxCubeColor();
 
 		String[] colors = board.getAllColors();
-		String myMove = "";
+		String myAction = "";
 
+		Board copiedBoard;
+		State state;
 		for (int j = 0; j < currentCity.getNeighboursNumber(); j++) {
 			if (isLegalDriveTo(playerID, currentCity.getNeighbour(j), board)) {
-				myMove = "#DT:" + currentCity.getNeighbour(j); // TODO
-				System.out.println(myMove);
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.driveTo(playerID, currentCity.getNeighbour(j));	
+				myAction = toTextDriveTo(playerID, currentCity.getNeighbour(j));
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 			}
 		}
 
 		for (int i = 0; i < myHand.size(); i++) {
 			if (isLegalDirectFlight(playerID, myHand.get(i), board)) {
-				myMove = "#DF:" + myHand.get(i); // TODO
-				System.out.println(myMove);
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.directFlight(playerID, myHand.get(i));
+				myAction = toTextDirectFlight(playerID, myHand.get(i));
+				
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 
 			} else if (isLegalCharterFlight(playerID, myHand.get(i), board)) {
-				myMove = "#CF:" + myHand.get(i); // TODO
-				System.out.println(myMove);
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.charterFlight(playerID, myHand.get(i));
+				myAction = toTextCharterFlight(playerID, myHand.get(i));
+				
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 
 			} else if (isLegalShuttleFlight(playerID, myHand.get(i), board)) {
-				myMove = "#SF:" + myHand.get(i); // TODO
-				System.out.println(myMove);
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.shuttleFlight(playerID, myHand.get(i));
+				myAction = toTextShuttleFlight(playerID, myHand.get(i));
+
+				myAction =toTextShuttleFlight(playerID, myHand.get(i));
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 
 			} else if (isLegalBuildRS(playerID, myHand.get(i), board)) {
-				myMove = "#RS:" + myHand.get(i); // TODO
-				System.out.println(myMove);
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.buildRS(playerID, myHand.get(i));
+				myAction = toTextBuildRS(playerID, myHand.get(i));
+				
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 			}
 		}
 
 		if (isLegalTreatDisease(playerID, curCityName, maxDisease, board)) {
-			myMove = "#TD:" + curCityName + ":" + maxDisease; // TODO
-			myMovesList.add(myMove);
+			copiedBoard = copyBoard(board);
+			copiedBoard.treatDisease(playerID, curCityName, maxDisease);
+			myAction = toTextTreatDisease(playerID, curCityName, maxDisease);
+
+			System.out.println(myAction);
+			state = new State(copiedBoard, playerID, myAction, 0);
+			allStates.add(state);
 		}
 
 		for (int i = 0; i < colors.length; i++) {
 			if (isLegalCureDisease(playerID, colors[i], board)) {
-				myMove = "#CD1:" + curCityName + ":" + maxDisease; // TODO
-				myMovesList.add(myMove);
+				copiedBoard = copyBoard(board);
+				copiedBoard.cureDisease(playerID, colors[i]);
+				myAction = toTextCureDisease(playerID, colors[i]);
+
+				System.out.println(myAction);
+				state = new State(copiedBoard, playerID, myAction, 0);
+				allStates.add(state);
 			}
 		}
-		return myMovesList;
+
+		return allStates;
 	}
 	
 	/* THESE ARE USED TO CHECK IF A PLAYER MOVE IS LEGAL */
