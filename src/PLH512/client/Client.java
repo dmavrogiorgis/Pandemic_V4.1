@@ -109,7 +109,7 @@ public class Client {
 							// printDistanceMap(distanceMap);
 
 							// ADD YOUR CODE FROM HERE AND ON!!
-							Agent ag = new Agent(myPlayerID, myBoard);
+							//Agent ag = new Agent(myPlayerID, myBoard);
 
 							boolean tryToCure = false;
 							String colorToCure = null;
@@ -123,7 +123,7 @@ public class Client {
 							boolean tryToTreatMedium = false;
 							String destinationMedium = null;
 
-							double adam_eva = ag.Evaluation(myBoard);
+							double adam_eva = Agent.evaluateBoard(myBoard);
 							System.out.println("AGENT EVALUATION: " + adam_eva);
 							ArrayList<State> al = getMoves(myPlayerID,  myBoard);
 							
@@ -367,13 +367,11 @@ public class Client {
 	
 	/* GET ALL POSSIBLE MOVES */ 
 	public static ArrayList<State> getMoves(int playerID, Board board) {
-		ArrayList<State> allStates = new ArrayList<State>();
+		ArrayList<State> possibleStates = new ArrayList<State>();
 		ArrayList<String> myHand = board.getHandOf(playerID);
 
 		String curCityName = board.getPawnsLocations(playerID);
-
 		City currentCity = board.searchForCity(board.getPawnsLocations(playerID));
-
 		String maxDisease = currentCity.getMaxCubeColor();
 
 		String[] colors = board.getAllColors();
@@ -386,9 +384,10 @@ public class Client {
 				copiedBoard = copyBoard(board);
 				copiedBoard.driveTo(playerID, currentCity.getNeighbour(j));	
 				myAction = toTextDriveTo(playerID, currentCity.getNeighbour(j));
+				
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 			}
 		}
 
@@ -399,8 +398,8 @@ public class Client {
 				myAction = toTextDirectFlight(playerID, myHand.get(i));
 				
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 
 			} else if (isLegalCharterFlight(playerID, myHand.get(i), board)) {
 				copiedBoard = copyBoard(board);
@@ -408,8 +407,8 @@ public class Client {
 				myAction = toTextCharterFlight(playerID, myHand.get(i));
 				
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 
 			} else if (isLegalShuttleFlight(playerID, myHand.get(i), board)) {
 				copiedBoard = copyBoard(board);
@@ -418,8 +417,8 @@ public class Client {
 
 				myAction =toTextShuttleFlight(playerID, myHand.get(i));
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 
 			} else if (isLegalBuildRS(playerID, myHand.get(i), board)) {
 				copiedBoard = copyBoard(board);
@@ -427,8 +426,8 @@ public class Client {
 				myAction = toTextBuildRS(playerID, myHand.get(i));
 				
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 			}
 		}
 
@@ -438,8 +437,8 @@ public class Client {
 			myAction = toTextTreatDisease(playerID, curCityName, maxDisease);
 
 			System.out.println(myAction);
-			state = new State(copiedBoard, playerID, myAction, 0);
-			allStates.add(state);
+			state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+			possibleStates.add(state);
 		}
 
 		for (int i = 0; i < colors.length; i++) {
@@ -449,12 +448,12 @@ public class Client {
 				myAction = toTextCureDisease(playerID, colors[i]);
 
 				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, 0);
-				allStates.add(state);
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
 			}
 		}
 
-		return allStates;
+		return possibleStates;
 	}
 	
 	/* THESE ARE USED TO CHECK IF A PLAYER MOVE IS LEGAL */

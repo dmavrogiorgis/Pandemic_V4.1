@@ -19,7 +19,7 @@ public class Agent {
 	}
 
 	/* 1) NORMALIZATION OF DISTANCE TO ALL THE CITIES USING THE NUMBER OF CITY CUBES DIVIED BY TOTAL STATE CUBES*/
-	public double heuristicSurvive(Board board) {
+	public static double heuristicSurvive(Board board) {
 		double evaluateState = 0;
 
 		for (int i = 0; i < board.getNumberOfPlayers(); i++) {
@@ -30,7 +30,7 @@ public class Agent {
 	}
 
 	/* 2) DISTANCE TO THE CLOSEST CITY WITH RS IN IT */
-	public double heuristicCure(Board board) {
+	public static double heuristicCure(Board board) {
 		double evaluateState = 0;
 
 		for (int i = 0; i < board.getNumberOfPlayers(); i++) {
@@ -40,7 +40,7 @@ public class Agent {
 	}
 
 	/* 3) MIN NUMBER OF CARDS MISSING TO DISCOVER A CURE FOR EACH DISEASE COLOR AMONG PLAYERS' HANDS */
-	public int heuristicCards(Board board) {
+	public static int heuristicCards(Board board) {
 		String[] colors = board.getAllColors();
 		int minColorCounter = Integer.MAX_VALUE;
 		int totalValue = 0;
@@ -66,7 +66,7 @@ public class Agent {
 	}
 
 	/* 4) NUMBER OF DISCARDED CARDS FOR EACH OF THE ACTIVE DISEASES STILL MISSING A CURE */
-	public double heuristicDiscard(Board board) {
+	public static double heuristicDiscard(Board board) {
 		String[] colors = board.getAllColors();
 		int totalValue = 0;
 		int actives = 0;
@@ -80,7 +80,7 @@ public class Agent {
 	}
 
 	/* 5) TOTAL NUMBER OF INFECTIONS-CUBES IN CURRENT STATE */
-	public int heuristicInfection(Board board) {
+	public static int heuristicInfection(Board board) {
 		Vector<City> list = board.getCityList();
 		Iterator<City> value = list.iterator();
 
@@ -93,7 +93,7 @@ public class Agent {
 	}
 
 	/* 6) AVERAGE DISTANCE REQUIRED TO MOVE FROM EACH CITY TO ANOTHER ASSOSIATED WITH THE NUMBER OF CARDS PLAYED */
-	public double heuristicDistance(Board board) {
+	public static double heuristicDistance(Board board) {
 		Vector<City> Cities = board.getCityList(); 
 
 		int cardsPlayedSoFar = board.getPlayersDeck().size();
@@ -114,7 +114,7 @@ public class Agent {
 	}
 
 	/* 7) COUNTS THE NUMBER OF ACTIVE DISEASES WHICH ARE STILL LACKING A CURE */
-	public int heuristicCures(Board board) {
+	public static int heuristicCures(Board board) {
 		String[] colors = board.getAllColors();
 
 		int totalActives = 0;
@@ -127,7 +127,7 @@ public class Agent {
     }
 	
 	/* 8) TOTAL EVALUATION */
-    public double Evaluation(Board board){
+    public static double evaluateBoard(Board board){
         double hstate = 0;
         double hsurv = heuristicSurvive(board); 
         double hcure = heuristicCure(board);
@@ -142,7 +142,7 @@ public class Agent {
         return hstate;
     }
 
-	public int getDiscardedPlayerDeck(Board board, String Color) {
+	public static int getDiscardedPlayerDeck(Board board, String Color) {
 		ArrayList<String> PlayerDeck = board.getPlayersDeck();
 		int ColorCounter = 12;
 		String cityColor = null;
@@ -158,7 +158,7 @@ public class Agent {
 		return ColorCounter;
 	}
 	
-	public int distanceOfCities(Board board, int playerID) {
+	public static int distanceOfCities(Board board, int playerID) {
 		int distance = 0;
 
 		ArrayList<citiesWithDistancesObj> distanceMap = BuildPlayerDistanceMap(board, playerID);
@@ -170,7 +170,7 @@ public class Agent {
 		return distance;
 	}
 
-	public ArrayList<citiesWithDistancesObj> BuildPlayerDistanceMap(Board board, int playerID) {
+	public static ArrayList<citiesWithDistancesObj> BuildPlayerDistanceMap(Board board, int playerID) {
 
 		String playerCurrentCity = board.getPawnsLocations(playerID);
 		ArrayList<citiesWithDistancesObj> dM = new ArrayList<citiesWithDistancesObj>();
@@ -178,7 +178,7 @@ public class Agent {
 		return dM;
 	}
 
-	public int CloserCityWithRS(ArrayList<citiesWithDistancesObj> distanceMap) {
+	public static int CloserCityWithRS(ArrayList<citiesWithDistancesObj> distanceMap) {
 		Iterator<citiesWithDistancesObj> value = distanceMap.iterator();
 
 		int minDistance = Integer.MAX_VALUE;
@@ -194,7 +194,7 @@ public class Agent {
 	}
 
 	/* GET THE TOTAL CUBES IN A CITY */
-	public int totalCubes(City city) {
+	public static int totalCubes(City city) {
 		return (city.getCubes("Red") + city.getCubes("Black") + city.getCubes("Yellow") + city.getCubes("Blue"));
 	}
 

@@ -32,11 +32,13 @@ public class MonteCarloTreeSearch {
     }
 
     public void expandNode(MCTSNode leafNode){
-        ArrayList<State> moves = Client.getMoves(leafNode.getState().getPlayerID(), leafNode.getState().getBoard());
-        for(int i=0; i< moves.size(); i++ ){
-            //State state = new State(Client., Agent.Evaluation(), );
+        ArrayList<State> possibleStates = Client.getMoves(leafNode.getState().getPlayerID(), leafNode.getState().getBoard());
+        State state;
+
+        for(int i=0; i< possibleStates.size(); i++ ){
+            state = possibleStates.get(i);
             
-           // MCTSNode node = new MCTSNode(state, 0, 0, leafNode);
+            MCTSNode node = new MCTSNode(state, 0, 0, leafNode);
         } 
 
     }
