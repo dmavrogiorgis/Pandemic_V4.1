@@ -79,7 +79,7 @@ public class Agent {
 		return totalValue;
 	}
 
-	/* 5) TOTAL NUMBER OF INFECTIONS IN CURRENT STATE */
+	/* 5) TOTAL NUMBER OF INFECTIONS-CUBES IN CURRENT STATE */
 	public int heuristicInfection(Board board) {
 		Vector<City> list = board.getCityList();
 		Iterator<City> value = list.iterator();
