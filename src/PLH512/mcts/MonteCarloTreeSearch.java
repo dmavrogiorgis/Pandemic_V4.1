@@ -109,7 +109,6 @@ public class MonteCarloTreeSearch {
 			tempNode.setTotalWins(tempNode.getTotalWins() + simVal);
 			tempNode = tempNode.getParentNode();
 		}
-
 	}
 
 	/* GETTERS AND SETTERS */
