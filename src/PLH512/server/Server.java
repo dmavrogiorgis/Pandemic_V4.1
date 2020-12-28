@@ -12,7 +12,7 @@ public class Server
 
 	static int activePlayers = 0; // Counter for active players
 	static final int portToSetUpServer = 64240;
-	static final int numberOfPlayers = 2;
+	static final int numberOfPlayers = 4;
 	
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException
