@@ -5,22 +5,24 @@ import java.util.ArrayList;
 public class MCTSNode {
     private State state;
     private int totalSims;  //total number of simulations
-    private int totalWins;  //number of simulations that resulted in a win
-    
+    private double totalWins;  //number of simulations that resulted in a win
+    private boolean isVisited;
+
     private MCTSNode parentNode;
     private ArrayList<MCTSNode> childrenNodes;
 
-    public MCTSNode(State state, int totalSims, int totalWins, MCTSNode parentNode){
+    public MCTSNode(State state, int totalSims, double totalWins, MCTSNode parentNode){
         this.parentNode = parentNode;
         this.state = state;
         this.totalSims = totalSims;
         this.totalWins = totalWins;
+        this.isVisited = false;
         this.childrenNodes = new ArrayList<MCTSNode>();
     }
 
     public double UCTValue() {
-        if (this.totalSims == 0) {
-            return Integer.MAX_VALUE;
+        if (this.getTotalSims() == 0) {
+            return Double.MAX_VALUE;
         }
         return (this.getTotalWins()/this.getTotalSims()) 
                     + Math.sqrt(2)*Math.sqrt(Math.log(this.getParentNode().getTotalSims())/this.getTotalSims());
@@ -56,18 +58,26 @@ public class MCTSNode {
         this.totalSims = totalSims;
     }
 
-    public int getTotalWins(){
+    public double getTotalWins(){
         return totalWins;
     }
     
-    public void setTotalWins(int totalWins){
+    public void setTotalWins(double totalWins){
         this.totalWins = totalWins;
     }
     
     public MCTSNode getParentNode(){
         return parentNode;
     }
+
+    public void setIsVisited(boolean isVisited){
+        this.isVisited = isVisited;
+    }
     
+    public boolean getIsVisited(){
+        return isVisited;
+    }
+
     public void setParentNode(MCTSNode parentNode){
         this.parentNode = parentNode;
     }

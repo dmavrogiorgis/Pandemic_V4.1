@@ -52,9 +52,9 @@ public class Agent {
 		for (int i = 0; i < colors.length; i++) {
 			for (int j = 0; j < board.getNumberOfPlayers(); j++) {
 				if (board.getRoleOf(j).equals("Scientist")) {
-					R = 4;
+					R = 3;
 				} else {
-					R = 5;
+					R = 4;
 				}
 				ColorCounter = R - Client.cardsCounterOfColor(board, j, colors[i]);
 				if (minColorCounter > ColorCounter)
@@ -137,7 +137,7 @@ public class Agent {
         double hdist = heuristicDistance(board);
         double hcures = heuristicCures(board);
 
-        hstate = 0.5*hsurv + 0.5*hcure + 1*hcards + 0.5*hdisc + 0.6*hinf + 0.6*hdist + 24*hcures;
+        hstate = 0.5*hsurv + 0.5*hcure + 50*hcards + 0.5*hdisc + 50*hinf + 0.6*hdist + 100*hcures;
         
         return hstate;
     }

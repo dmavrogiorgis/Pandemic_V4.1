@@ -90,7 +90,7 @@ public class Client {
 							distanceMap = buildDistanceMap(myBoard, myCurrentCity, distanceMap);
 
 							String myAction = "";
-							// String mySuggestion = "";
+							String mySuggestion = "";
 
 							int myActionCounter = 0;
 
@@ -109,7 +109,6 @@ public class Client {
 							// printDistanceMap(distanceMap);
 
 							// ADD YOUR CODE FROM HERE AND ON!!
-							//Agent ag = new Agent(myPlayerID, myBoard);
 
 							boolean tryToCure = false;
 							String colorToCure = null;
@@ -122,17 +121,36 @@ public class Client {
 
 							boolean tryToTreatMedium = false;
 							String destinationMedium = null;
+							Agent ag = new Agent(myPlayerID, myBoard);
 
 							double adam_eva = Agent.evaluateBoard(myBoard);
 							System.out.println("AGENT EVALUATION: " + adam_eva);
-							ArrayList<State> al = getMoves(myPlayerID,  myBoard);
-							
-							System.err.println("ARRAY LIST SIZE: " + al.size());
-							
-							myBoard.printCitiesAndCubes();
-							// String destinationRandom = null;
 
-							if (myColorCount[0] > 4 || myColorCount[1] > 4 || myColorCount[2] > 4
+							ArrayList<State> al = getMoves(myPlayerID, myBoard);
+							System.err.println("ARRAY LIST SIZE: " + al.size());
+
+							// myBoard.printCitiesAndCubes();
+							// String destinationRandom = null;
+							State state = new State(ag.getMyBoard(), ag.getAgentID(), ag.getMyAction(),	Agent.evaluateBoard(ag.getMyBoard()));
+							MCTSNode rootNode = new MCTSNode(state, 0, 0, null);
+							MonteCarloTreeSearch tree = new MonteCarloTreeSearch(rootNode);
+
+							ArrayList<MCTSNode> bestNodes = tree.BestAction();
+							
+							System.out.println("MY CITY: " + myCurrentCity);
+							if(!bestNodes.isEmpty()) {
+								for(int i=0; i<bestNodes.size(); i++){
+									myAction += bestNodes.get(i).getState().getAction();
+								}
+							}
+							
+							System.out.println("MY ACTION: " + myAction);
+							try {
+								Thread.sleep(5000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							/*if (myColorCount[0] > 4 || myColorCount[1] > 4 || myColorCount[2] > 4
 									|| myColorCount[3] > 4) {
 								if (myActionCounter < 4)
 									tryToCure = true;
@@ -276,8 +294,7 @@ public class Client {
 
 								myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
 								myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
-							}
-
+							}*/
 							// UP TO HERE!! DON'T FORGET TO EDIT THE "msgToSend"
 
 							// Message type
@@ -360,12 +377,8 @@ public class Client {
 
 		}
 	}
-	public void MoveEvaulation(State s){
-		
-		
-	}
 	
-	/* GET ALL POSSIBLE MOVES */ 
+	/* GET ALL POSSIBLE MOVES */
 	public static ArrayList<State> getMoves(int playerID, Board board) {
 		ArrayList<State> possibleStates = new ArrayList<State>();
 		ArrayList<String> myHand = board.getHandOf(playerID);
@@ -379,64 +392,13 @@ public class Client {
 
 		Board copiedBoard;
 		State state;
-		for (int j = 0; j < currentCity.getNeighboursNumber(); j++) {
-			if (isLegalDriveTo(playerID, currentCity.getNeighbour(j), board)) {
-				copiedBoard = copyBoard(board);
-				copiedBoard.driveTo(playerID, currentCity.getNeighbour(j));	
-				myAction = toTextDriveTo(playerID, currentCity.getNeighbour(j));
-				
-				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-				possibleStates.add(state);
-			}
-		}
 
-		for (int i = 0; i < myHand.size(); i++) {
-			if (isLegalDirectFlight(playerID, myHand.get(i), board)) {
-				copiedBoard = copyBoard(board);
-				copiedBoard.directFlight(playerID, myHand.get(i));
-				myAction = toTextDirectFlight(playerID, myHand.get(i));
-				
-				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-				possibleStates.add(state);
-
-			} else if (isLegalCharterFlight(playerID, myHand.get(i), board)) {
-				copiedBoard = copyBoard(board);
-				copiedBoard.charterFlight(playerID, myHand.get(i));
-				myAction = toTextCharterFlight(playerID, myHand.get(i));
-				
-				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-				possibleStates.add(state);
-
-			} else if (isLegalShuttleFlight(playerID, myHand.get(i), board)) {
-				copiedBoard = copyBoard(board);
-				copiedBoard.shuttleFlight(playerID, myHand.get(i));
-				myAction = toTextShuttleFlight(playerID, myHand.get(i));
-
-				myAction =toTextShuttleFlight(playerID, myHand.get(i));
-				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-				possibleStates.add(state);
-
-			} else if (isLegalBuildRS(playerID, myHand.get(i), board)) {
-				copiedBoard = copyBoard(board);
-				copiedBoard.buildRS(playerID, myHand.get(i));
-				myAction = toTextBuildRS(playerID, myHand.get(i));
-				
-				System.out.println(myAction);
-				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-				possibleStates.add(state);
-			}
-		}
-
+		
 		if (isLegalTreatDisease(playerID, curCityName, maxDisease, board)) {
 			copiedBoard = copyBoard(board);
 			copiedBoard.treatDisease(playerID, curCityName, maxDisease);
 			myAction = toTextTreatDisease(playerID, curCityName, maxDisease);
 
-			System.out.println(myAction);
 			state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
 			possibleStates.add(state);
 		}
@@ -447,10 +409,58 @@ public class Client {
 				copiedBoard.cureDisease(playerID, colors[i]);
 				myAction = toTextCureDisease(playerID, colors[i]);
 
-				System.out.println(myAction);
 				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
 				possibleStates.add(state);
 			}
+		}
+	
+		for (int i = 0; i < myHand.size(); i++) {
+			if (isLegalBuildRS(playerID, myHand.get(i), board)) {
+				copiedBoard = copyBoard(board);
+				copiedBoard.buildRS(playerID, myHand.get(i));
+				myAction = toTextBuildRS(playerID, myHand.get(i));
+
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
+			}
+			if (isLegalCharterFlight(playerID, myHand.get(i), board)) {
+				copiedBoard = copyBoard(board);
+				copiedBoard.charterFlight(playerID, myHand.get(i));
+				myAction = toTextCharterFlight(playerID, myHand.get(i));
+
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
+
+			}
+			if (isLegalShuttleFlight(playerID, myHand.get(i), board)) {
+				copiedBoard = copyBoard(board);
+				copiedBoard.shuttleFlight(playerID, myHand.get(i));
+				myAction = toTextShuttleFlight(playerID, myHand.get(i));
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
+
+			}
+			if (isLegalDirectFlight(playerID, myHand.get(i), board)) {
+				copiedBoard = copyBoard(board);
+				copiedBoard.directFlight(playerID, myHand.get(i));
+				myAction = toTextDirectFlight(playerID, myHand.get(i));
+
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
+
+			}
+		}
+
+		for (int j = 0; j < currentCity.getNeighboursNumber(); j++) {
+			if (isLegalDriveTo(playerID, currentCity.getNeighbour(j), board)) {
+				copiedBoard = copyBoard(board);
+				copiedBoard.driveTo(playerID, currentCity.getNeighbour(j));
+				myAction = toTextDriveTo(playerID, currentCity.getNeighbour(j));
+
+				state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+				possibleStates.add(state);
+			}
+
 		}
 
 		return possibleStates;
