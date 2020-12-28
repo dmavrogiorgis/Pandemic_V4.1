@@ -44,7 +44,7 @@ public class MCTSNode {
         while(iter.hasNext()){
             tempChild = (MCTSNode) iter.next();
             tempUCT = tempChild.UCTValue();
-            if(tempUCT > bestUCT){
+            if(tempChild.getIsVisited() && tempUCT > bestUCT){
                 bestChild = tempChild;
                 bestUCT = tempUCT;
             }

@@ -66,8 +66,6 @@ public class MonteCarloTreeSearch {
 			}
 			curChildren = curNode.getChildrenNodes();
 		}
-		System.out.println("Hand:  ");
-		curNode.getState().getBoard().printHandOf(curNode.getState().getPlayerID());
 		return curNode;
 	}
 
