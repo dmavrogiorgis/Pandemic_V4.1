@@ -3,7 +3,7 @@ package PLH512.client;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Random;
+//import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import PLH512.server.Board;
@@ -77,7 +77,7 @@ public class Client {
 							Board myBoard = currentBoard[0];
 
 							String myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-							City myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
+							//City myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
 
 							ArrayList<String> myHand = myBoard.getHandOf(myPlayerID);
 
@@ -90,7 +90,7 @@ public class Client {
 							distanceMap = buildDistanceMap(myBoard, myCurrentCity, distanceMap);
 
 							String myAction = "";
-							String mySuggestion = "";
+							//String mySuggestion = "";
 
 							int myActionCounter = 0;
 
@@ -110,7 +110,7 @@ public class Client {
 
 							// ADD YOUR CODE FROM HERE AND ON!!
 
-							boolean tryToCure = false;
+							/*boolean tryToCure = false;
 							String colorToCure = null;
 
 							boolean tryToTreatHere = false;
@@ -120,7 +120,7 @@ public class Client {
 							String destinationClose = null;
 
 							boolean tryToTreatMedium = false;
-							String destinationMedium = null;
+							String destinationMedium = null;*/
 							Agent ag = new Agent(myPlayerID, myBoard);
 
 							double adam_eva = Agent.evaluateBoard(myBoard);
@@ -135,15 +135,22 @@ public class Client {
 							MCTSNode rootNode = new MCTSNode(state, 0, 0, null);
 							MonteCarloTreeSearch tree = new MonteCarloTreeSearch(rootNode);
 
-							ArrayList<MCTSNode> bestNodes = tree.BestAction();
+							MCTSNode bestNode = tree.BestAction();
 							
 							System.out.println("MY CITY: " + myCurrentCity);
-							if(!bestNodes.isEmpty()) {
-								for(int i=0; i<bestNodes.size(); i++){
-									myAction += bestNodes.get(i).getState().getAction();
-								}
+							if(bestNode!=null) {
+								myAction += bestNode.getState().getAction();
+								myActionCounter++;
 							}
-							
+							while(myActionCounter < 4){
+								MCTSNode bestChild = bestNode.getBestUCTNode();
+								if(bestChild == null){
+									break;
+								}
+								myAction += bestChild.getState().getAction();
+								bestNode = bestChild;
+								myActionCounter++;
+							}
 							System.out.println("MY ACTION: " + myAction);
 							try {
 								Thread.sleep(5000);

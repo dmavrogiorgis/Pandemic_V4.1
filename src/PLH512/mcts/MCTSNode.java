@@ -1,6 +1,7 @@
 package PLH512.mcts;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class MCTSNode {
     private State state;
@@ -28,13 +29,36 @@ public class MCTSNode {
                     + Math.sqrt(2)*Math.sqrt(Math.log(this.getParentNode().getTotalSims())/this.getTotalSims());
     }
 
+    public MCTSNode getBestUCTNode(){
+        ArrayList<MCTSNode> children = this.getChildrenNodes();
+        MCTSNode tempChild;
+        MCTSNode bestChild = null;
+        double tempUCT;
+        double bestUCT = -Double.MAX_VALUE;
+        
+        if(this.sizeOfChildrenList() == 0){
+            return null;
+        }
+
+        Iterator<MCTSNode> iter = children.iterator();
+        while(iter.hasNext()){
+            tempChild = (MCTSNode) iter.next();
+            tempUCT = tempChild.UCTValue();
+            if(tempUCT > bestUCT){
+                bestChild = tempChild;
+                bestUCT = tempUCT;
+            }
+        }
+        return bestChild;
+    }
+    
     /* IF THE SIZE OF THE CHILDREN LIST IS 0 WE HAVE A LEAF NODE */
     public boolean isLeaf(){
         return (this.getChildrenNodes().size()==0); 
     }
 
     public boolean isRoot() {
-        return (this.getParentNode() == null);
+        return (this.getParentNode()==null);
     }
 
     public int sizeOfChildrenList(){
