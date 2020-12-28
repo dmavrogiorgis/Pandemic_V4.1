@@ -94,7 +94,6 @@ public class MonteCarloTreeSearch {
 
 			RandomMoves--;
 		}*/
-
 	}
 
 	public void backPropagate(MCTSNode node) {
