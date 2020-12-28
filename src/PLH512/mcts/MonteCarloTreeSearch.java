@@ -36,10 +36,9 @@ public class MonteCarloTreeSearch {
 			i--;
 		}
 
-		System.out.println(bestNode.sizeOfChildrenList() + "   " + bestNode.isLeaf());
 		for (int j = 0; j < bestNode.getChildrenNodes().size(); j++) {
 			tempNode = bestNode.getChildrenNodes().get(j);
-			if (tempNode.getTotalWins() < bestScore && tempNode.getTotalWins() != 0) { // TODO
+			if (tempNode.getTotalWins() < bestScore && tempNode.getTotalWins() != 0) { 
 				bestNode = tempNode;
 				bestScore = tempNode.getTotalWins();
 			}
