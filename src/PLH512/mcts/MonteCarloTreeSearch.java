@@ -17,6 +17,7 @@ public class MonteCarloTreeSearch {
 		MCTSNode tempNode;
 		MCTSNode bestNode = this.getRoot();
 		double bestScore = Double.MAX_VALUE;
+		double simVal = Double.MAX_VALUE;
 
 		Random rand = new Random();
 		int i = N;
@@ -27,11 +28,11 @@ public class MonteCarloTreeSearch {
 			}
 			nodeToEplore = promisingNode;
 			if (promisingNode.sizeOfChildrenList() > 0) {
-				int randi = rand.nextInt(promisingNode.sizeOfChildrenList() - 1);
+				int randi = rand.nextInt(promisingNode.sizeOfChildrenList());
 				nodeToEplore = promisingNode.getChildrenNodes().get(randi);
-				simulate(nodeToEplore);
+				simVal = simulate(nodeToEplore);
 			}
-			backPropagate(nodeToEplore);
+			backPropagate(nodeToEplore, simVal);
 			i--;
 		}
 
@@ -82,26 +83,31 @@ public class MonteCarloTreeSearch {
 		}
 	}
 
-	public void simulate(MCTSNode node) {
-		/*int RandomMoves = 10, randomIndex;
-		ArrayList<State> possibleMoves = Client.getMoves(node.getState().getPlayerID(), node.getState().getBoard());
+	public double simulate(MCTSNode node) {
+		int totalMoves = 20, randi;
 		Random rand = new Random();
-		while (RandomMoves > 0) {
-			randomIndex = rand.nextInt(1);
-            
+		MCTSNode curNode = node;
+		MCTSNode tempNode = node;
 
-			RandomMoves--;
-		}*/
+		while (totalMoves > 0) {
+			ArrayList<State> possibleMoves = Client.getMoves(curNode.getState().getPlayerID(), curNode.getState().getBoard());
+			randi = rand.nextInt(possibleMoves.size());
+
+            State state = possibleMoves.get(randi);
+			tempNode = new MCTSNode(state, 0, 0, curNode);
+			curNode = tempNode;
+			totalMoves--;
+		}
+		return curNode.getState().getEvaluation();
 	}
 
-	public void backPropagate(MCTSNode node) {
+	public void backPropagate(MCTSNode node, double simVal) {
 		MCTSNode tempNode = node;
-		double score = tempNode.getState().getEvaluation();
 
         node.setIsVisited(true);
 		while (tempNode != null) {
 			tempNode.setTotaSims(tempNode.getTotalSims() + 1);
-			tempNode.setTotalWins(tempNode.getTotalWins() + score);
+			tempNode.setTotalWins(tempNode.getTotalWins() + simVal);
 			tempNode = tempNode.getParentNode();
 		}
 
