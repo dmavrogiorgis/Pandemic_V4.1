@@ -56,12 +56,15 @@ public class MonteCarloTreeSearch {
 
 		while (!curNode.isLeaf()) {
 			bestUCT = -Double.MAX_VALUE;
-
 			for (int i = 0; i < curNode.sizeOfChildrenList(); i++) {
-				curUCT = curChildren.get(i).UCTValue();
-				if (curUCT > bestUCT) {
-					bestUCT = curUCT;
-					curNode = curChildren.get(i);
+				try {
+					curUCT = curChildren.get(i).UCTValue();
+					if (curUCT > bestUCT) {
+						bestUCT = curUCT;
+						curNode = curChildren.get(i);
+					}
+				} catch (Exception e) {
+					break;
 				}
 			}
 			curChildren = curNode.getChildrenNodes();
@@ -70,11 +73,9 @@ public class MonteCarloTreeSearch {
 	}
 
 	public void expandNode(MCTSNode leafNode) {
-		ArrayList<State> possibleStates = Client.getMoves(leafNode.getState().getPlayerID(),
-				leafNode.getState().getBoard());
+		ArrayList<State> possibleStates = Client.getMoves(leafNode.getState().getPlayerID(), leafNode.getState().getBoard());
 		State state;
-		MCTSNode newNode;
-
+		MCTSNode newNode;	
 		for (int i = 0; i < possibleStates.size(); i++) {
 			state = possibleStates.get(i);
 			newNode = new MCTSNode(state, 0, 0, leafNode);
@@ -83,7 +84,7 @@ public class MonteCarloTreeSearch {
 	}
 
 	public double simulate(MCTSNode node) {
-		int totalMoves = 20, randi;
+		int totalMoves = 100, randi;
 		Random rand = new Random();
 		MCTSNode curNode = node;
 		MCTSNode tempNode = node;
@@ -92,7 +93,10 @@ public class MonteCarloTreeSearch {
 			ArrayList<State> possibleMoves = Client.getMoves(curNode.getState().getPlayerID(), curNode.getState().getBoard());
 			randi = rand.nextInt(possibleMoves.size());
 
-            State state = possibleMoves.get(randi);
+			State state = possibleMoves.get(randi);
+			if(state.getBoard().checkIfWon()){
+				break;
+			}
 			tempNode = new MCTSNode(state, 0, 0, curNode);
 			curNode = tempNode;
 			totalMoves--;

@@ -717,12 +717,12 @@ public class Board implements Serializable{
 				isLegal = true;
 		
 		if (isLegal) {
-			System.out.println(usernames[playerID] + " is driving / getting ferry to " + destination + " from " + currentCity.getName());
+			//System.out.println(usernames[playerID] + " is driving / getting ferry to " + destination + " from " + currentCity.getName());
 			setPawnsLocations(playerID, destination);
 			return true;
 		}
 		else {
-			System.out.println(destination + " is not accesible by drive / ferry from " + currentCity.getName());
+			//System.out.println(destination + " is not accesible by drive / ferry from " + currentCity.getName());
 			return false;
 		}
 	}
@@ -736,13 +736,13 @@ public class Board implements Serializable{
 			isLegal = true;
 		
 		if (isLegal) {
-			System.out.println(usernames[playerID] + " is getting a direct flight to " + destination + " from " + getPawnsLocations(playerID));
+			//System.out.println(usernames[playerID] + " is getting a direct flight to " + destination + " from " + getPawnsLocations(playerID));
 			setPawnsLocations(playerID, destination);
 			getHandOf(playerID).remove(destination);
 			return true;
 		}
 		else {
-			System.out.println(destination + " is not accessible by direct flight");
+			//System.out.println(destination + " is not accessible by direct flight");
 			return false;
 		}
 	}
@@ -756,13 +756,13 @@ public class Board implements Serializable{
 			isLegal = true;
 		
 		if (isLegal) {
-			System.out.println(usernames[playerID] + " is getting a charter flight to " + destination + " from " + getPawnsLocations(playerID));
+			//System.out.println(usernames[playerID] + " is getting a charter flight to " + destination + " from " + getPawnsLocations(playerID));
 			setPawnsLocations(playerID, destination);
 			getHandOf(playerID).remove(getPawnsLocations(playerID));
 			return true;
 		}
 		else {
-			System.out.println(destination + " is not accessible by charter flight");
+			//System.out.println(destination + " is not accessible by charter flight");
 			return false;
 		}
 	}
@@ -776,12 +776,12 @@ public class Board implements Serializable{
 			isLegal = true;
 		
 		if (isLegal) {
-			System.out.println(usernames[playerID] + " is getting a shuttle flight to " + destination + " from " + getPawnsLocations(playerID));
+			//System.out.println(usernames[playerID] + " is getting a shuttle flight to " + destination + " from " + getPawnsLocations(playerID));
 			setPawnsLocations(playerID, destination);
 			return true;
 		}
 		else {
-			System.out.println(destination + " is not accessible by shuttle flight");
+			//System.out.println(destination + " is not accessible by shuttle flight");
 			return false;
 		}
 	}
@@ -800,18 +800,18 @@ public class Board implements Serializable{
 			isLegal = false;
 		
 		if (isLegal && isOperationsExpert) {
-			System.out.println(usernames[playerID] + " is building an RS in " + cityToBuild + " as the operations expert");
+			//System.out.println(usernames[playerID] + " is building an RS in " + cityToBuild + " as the operations expert");
 			RSLocations.add(cityToBuild);
 			return true;
 		}
 		else if (isLegal) {
-			System.out.println(usernames[playerID] + " is building an RS in " + cityToBuild);
+			//System.out.println(usernames[playerID] + " is building an RS in " + cityToBuild);
 			RSLocations.add(cityToBuild);
 			getHandOf(playerID).remove(cityToBuild);
 			return true;
 		}
 		else {
-			System.out.println("Could not build an RS in " + cityToBuild);
+			//System.out.println("Could not build an RS in " + cityToBuild);
 			return false;
 		}
 	}
@@ -821,13 +821,13 @@ public class Board implements Serializable{
 		
 		if (getRSLocations().contains(cityToRemove))
 		{
-			System.out.println(usernames[playerID] + " is removing the Reseach Station from " + cityToRemove);
+			//System.out.println(usernames[playerID] + " is removing the Reseach Station from " + cityToRemove);
 			manualRemoveResearchStation(cityToRemove);
 			return true;
 		}
 		else 
 		{
-			System.out.println("There is no RS there to remove..");
+			//System.out.println("There is no RS there to remove..");
 			return false;
 		}
 	}
@@ -901,15 +901,15 @@ public class Board implements Serializable{
 		}
 		
 		if (isLegal && isMedic) {
-			System.out.println(usernames[playerID] + " treated all (" + cubesRemoved + ") " + color + " cube(s) from " + cityToTreat + " as the Medic");
+			//System.out.println(usernames[playerID] + " treated all (" + cubesRemoved + ") " + color + " cube(s) from " + cityToTreat + " as the Medic");
 			return true;
 		}
 		else if (isLegal && !isMedic) {
-			System.out.println(usernames[playerID] + " treated 1 " + color + " cube from " + cityToTreat);
+			//System.out.println(usernames[playerID] + " treated 1 " + color + " cube from " + cityToTreat);
 			return true;
 		}
 		else {
-			System.out.println(getUsernames(playerID) + " could not treat " + cityToTreat);
+			//System.out.println(getUsernames(playerID) + " could not treat " + cityToTreat);
 			return false;
 		}
 	}

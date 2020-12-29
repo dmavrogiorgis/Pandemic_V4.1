@@ -13,12 +13,15 @@ import PLH512.mcts.*;
 public class Client {
 	final static int ServerPort = 64240;
 	final static String username = "myName";
+	static int TotalCures =0;
+	static int TotalTreats =0;
 
 	public static void main(String args[]) throws UnknownHostException, IOException, ClassNotFoundException {
 		int numberOfPlayers;
 		int myPlayerID;
 		String myUsername;
 		String myRole;
+		
 
 		// Getting localhost ip
 		InetAddress ip = InetAddress.getByName("localhost");
@@ -147,161 +150,20 @@ public class Client {
 								if(bestChild == null){
 									break;
 								}
+								if(bestChild.getState().getAction().contains("TD"))
+									TotalTreats++;
+								if(bestChild.getState().getAction().contains("CD1") || bestChild.getState().getAction().contains("CD2"))
+									TotalCures++;
 								myAction += bestChild.getState().getAction();
 								bestNode = bestChild;
 								myActionCounter++;
 							}
 							System.out.println("MY ACTION: " + myAction);
 							try {
-								Thread.sleep(5000);
+								Thread.sleep(2000);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
-							/*if (myColorCount[0] > 4 || myColorCount[1] > 4 || myColorCount[2] > 4
-									|| myColorCount[3] > 4) {
-								if (myActionCounter < 4)
-									tryToCure = true;
-
-								if (myColorCount[0] > 4)
-									colorToCure = "Black";
-								else if (myColorCount[1] > 4)
-									colorToCure = "Yellow";
-								else if (myColorCount[2] > 4)
-									colorToCure = "Blue";
-								else if (myColorCount[3] > 4)
-									colorToCure = "Red";
-							}
-
-							if (tryToCure) {
-								System.out.println("I want to try and cure the " + colorToCure + " disease!");
-								myAction = myAction + toTextCureDisease(myPlayerID, colorToCure);
-								myBoard.cureDisease(myPlayerID, colorToCure);
-								myActionCounter++;
-
-							}
-
-							if (myCurrentCityObj.getBlackCubes() != 0 || myCurrentCityObj.getYellowCubes() != 0
-									|| myCurrentCityObj.getBlueCubes() != 0 || myCurrentCityObj.getRedCubes() != 0) {
-								if (myActionCounter < 4)
-									tryToTreatHere = true;
-
-								if (myCurrentCityObj.getBlackCubes() > 0)
-									colorToTreat = "Black";
-								else if (myCurrentCityObj.getYellowCubes() > 0)
-									colorToTreat = "Yellow";
-								else if (myCurrentCityObj.getBlueCubes() > 0)
-									colorToTreat = "Blue";
-								else if (myCurrentCityObj.getRedCubes() > 0)
-									colorToTreat = "Red";
-							}
-
-							if (tryToTreatHere) {
-								while (myCurrentCityObj.getMaxCube() != 0 && myActionCounter < 4) {
-									colorToTreat = myCurrentCityObj.getMaxCubeColor();
-
-									System.out.println("I want to try and treat one " + colorToTreat + " cube from "
-											+ myCurrentCity + "!");
-
-									myAction = myAction + toTextTreatDisease(myPlayerID, myCurrentCity, colorToTreat);
-									myActionCounter++;
-
-									myBoard.treatDisease(myPlayerID, myCurrentCity, colorToTreat);
-								}
-							}
-
-							if (myActionCounter < 4) {
-								destinationClose = getMostInfectedInRadius(1, distanceMap, myBoard);
-
-								if (!destinationClose.equals(myCurrentCity))
-									tryToTreatClose = true;
-							}
-
-							if (tryToTreatClose) {
-								System.out.println("Hhhmmmmmm I could go and try to treat " + destinationClose);
-
-								myAction = myAction + toTextDriveTo(myPlayerID, destinationClose);
-								myActionCounter++;
-
-								myBoard.driveTo(myPlayerID, destinationClose);
-
-								myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-								myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
-
-								while (myCurrentCityObj.getMaxCube() != 0 && myActionCounter < 4) {
-									colorToTreat = myCurrentCityObj.getMaxCubeColor();
-
-									System.out.println("I want to try and treat one " + colorToTreat + " cube from "
-											+ myCurrentCity + "!");
-
-									myAction = myAction + toTextTreatDisease(myPlayerID, myCurrentCity, colorToTreat);
-									myActionCounter++;
-
-									myBoard.treatDisease(myPlayerID, myCurrentCity, colorToTreat);
-								}
-							}
-
-							if (myActionCounter < 4) {
-								destinationMedium = getMostInfectedInRadius(2, distanceMap, myBoard);
-
-								if (!destinationMedium.equals(myCurrentCity))
-									tryToTreatMedium = true;
-							}
-
-							if (tryToTreatMedium) {
-								System.out.println("Hhhmmmmmm I could go and try to treat " + destinationMedium);
-
-								String driveFirstTo = getDirectionToMove(myCurrentCity, destinationMedium, distanceMap,
-										myBoard);
-
-								myAction = myAction + toTextDriveTo(myPlayerID, driveFirstTo);
-								myActionCounter++;
-								myAction = myAction + toTextDriveTo(myPlayerID, destinationMedium);
-								myActionCounter++;
-
-								myBoard.driveTo(myPlayerID, driveFirstTo);
-
-								myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-								myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
-
-								myBoard.driveTo(myPlayerID, destinationMedium);
-
-								myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-								myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
-
-								while (myCurrentCityObj.getMaxCube() != 0 && myActionCounter < 4) {
-									colorToTreat = myCurrentCityObj.getMaxCubeColor();
-
-									System.out.println("I want to try and treat one " + colorToTreat + " cube from "
-											+ myCurrentCity + "!");
-
-									myAction = myAction + toTextTreatDisease(myPlayerID, myCurrentCity, colorToTreat);
-									myActionCounter++;
-
-									myBoard.treatDisease(myPlayerID, myCurrentCity, colorToTreat);
-								}
-							}
-
-							Random rand = new Random();
-
-							while (myActionCounter < 4) {
-								int upperBound;
-								int randomNumber;
-								String randomCityToGo;
-
-								upperBound = myCurrentCityObj.getNeighboursNumber();
-								randomNumber = rand.nextInt(upperBound);
-								randomCityToGo = myCurrentCityObj.getNeighbour(randomNumber);
-
-								System.out.println("Moving randomly to " + randomCityToGo);
-
-								myAction = myAction + toTextDriveTo(myPlayerID, randomCityToGo);
-								myActionCounter++;
-
-								myBoard.driveTo(myPlayerID, randomCityToGo);
-
-								myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-								myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
-							}*/
 							// UP TO HERE!! DON'T FORGET TO EDIT THE "msgToSend"
 
 							// Message type
@@ -378,6 +240,7 @@ public class Client {
 				// scn.close();
 				s.close();
 				System.out.println("Recources closed succesfully. Goodbye!");
+				System.out.println("Total Treats: " + TotalTreats +  " Total Cures :  " + TotalCures);
 				System.exit(0);
 				break;
 			}
@@ -400,16 +263,6 @@ public class Client {
 		Board copiedBoard;
 		State state;
 
-		
-		if (isLegalTreatDisease(playerID, curCityName, maxDisease, board)) {
-			copiedBoard = copyBoard(board);
-			copiedBoard.treatDisease(playerID, curCityName, maxDisease);
-			myAction = toTextTreatDisease(playerID, curCityName, maxDisease);
-
-			state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
-			possibleStates.add(state);
-		}
-
 		for (int i = 0; i < colors.length; i++) {
 			if (isLegalCureDisease(playerID, colors[i], board)) {
 				copiedBoard = copyBoard(board);
@@ -420,7 +273,19 @@ public class Client {
 				possibleStates.add(state);
 			}
 		}
+		
+		if (!possibleStates.isEmpty())
+			return possibleStates;
 	
+
+		if (isLegalTreatDisease(playerID, curCityName, maxDisease, board)) {
+			copiedBoard = copyBoard(board);
+			copiedBoard.treatDisease(playerID, curCityName, maxDisease);
+			myAction = toTextTreatDisease(playerID, curCityName, maxDisease);
+
+			state = new State(copiedBoard, playerID, myAction, Agent.evaluateBoard(copiedBoard));
+			possibleStates.add(state);
+		}
 		for (int i = 0; i < myHand.size(); i++) {
 			if (isLegalBuildRS(playerID, myHand.get(i), board)) {
 				copiedBoard = copyBoard(board);
