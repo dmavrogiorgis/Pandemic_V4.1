@@ -3,25 +3,22 @@ package PLH512.client;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-//import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import PLH512.server.Board;
-import PLH512.server.City;
+import PLH512.server.*;
 import PLH512.mcts.*;
 
 public class Client {
 	final static int ServerPort = 64240;
 	final static String username = "myName";
-	static int TotalCures =0;
-	static int TotalTreats =0;
+	static int TotalCures = 0;
+	static int TotalTreats = 0;
 
 	public static void main(String args[]) throws UnknownHostException, IOException, ClassNotFoundException {
 		int numberOfPlayers;
 		int myPlayerID;
 		String myUsername;
 		String myRole;
-		
 
 		// Getting localhost ip
 		InetAddress ip = InetAddress.getByName("localhost");
@@ -80,7 +77,7 @@ public class Client {
 							Board myBoard = currentBoard[0];
 
 							String myCurrentCity = myBoard.getPawnsLocations(myPlayerID);
-							//City myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
+							// City myCurrentCityObj = myBoard.searchForCity(myCurrentCity);
 
 							ArrayList<String> myHand = myBoard.getHandOf(myPlayerID);
 
@@ -93,7 +90,7 @@ public class Client {
 							distanceMap = buildDistanceMap(myBoard, myCurrentCity, distanceMap);
 
 							String myAction = "";
-							//String mySuggestion = "";
+							// String mySuggestion = "";
 
 							int myActionCounter = 0;
 
@@ -113,54 +110,54 @@ public class Client {
 
 							// ADD YOUR CODE FROM HERE AND ON!!
 
-							/*boolean tryToCure = false;
-							String colorToCure = null;
-
-							boolean tryToTreatHere = false;
-							String colorToTreat = null;
-
-							boolean tryToTreatClose = false;
-							String destinationClose = null;
-
-							boolean tryToTreatMedium = false;
-							String destinationMedium = null;*/
+							/*
+							 * boolean tryToCure = false; String colorToCure = null;
+							 * 
+							 * boolean tryToTreatHere = false; String colorToTreat = null;
+							 * 
+							 * boolean tryToTreatClose = false; String destinationClose = null;
+							 * 
+							 * boolean tryToTreatMedium = false; String destinationMedium = null;
+							 */
 							Agent ag = new Agent(myPlayerID, myBoard);
-
-							double adam_eva = Agent.evaluateBoard(myBoard);
-							System.out.println("AGENT EVALUATION: " + adam_eva);
-
-							ArrayList<State> al = getMoves(myPlayerID, myBoard);
-							System.err.println("ARRAY LIST SIZE: " + al.size());
 
 							// myBoard.printCitiesAndCubes();
 							// String destinationRandom = null;
-							State state = new State(ag.getMyBoard(), ag.getAgentID(), ag.getMyAction(),	Agent.evaluateBoard(ag.getMyBoard()));
+							State state = new State(ag.getMyBoard(), ag.getAgentID(), ag.getMyAction(), Agent.evaluateBoard(ag.getMyBoard()));
 							MCTSNode rootNode = new MCTSNode(state, 0, 0, null);
 							MonteCarloTreeSearch tree = new MonteCarloTreeSearch(rootNode);
 
 							MCTSNode bestNode = tree.BestAction();
-							
+
 							System.out.println("MY CITY: " + myCurrentCity);
-							if(bestNode!=null) {
+							if (bestNode != null) {
 								myAction += bestNode.getState().getAction();
 								myActionCounter++;
 							}
-							while(myActionCounter < 4){
+							while (myActionCounter < 4) {
 								MCTSNode bestChild = bestNode.getBestUCTNode();
-								if(bestChild == null){
+								if (bestChild == null) {
 									break;
 								}
-								if(bestChild.getState().getAction().contains("TD"))
-									TotalTreats++;
-								if(bestChild.getState().getAction().contains("CD1") || bestChild.getState().getAction().contains("CD2"))
-									TotalCures++;
+								if (bestChild.getState().getAction().contains("TD"))
+									setTotalTreats(getTotalTreats() + 1);
+								if (bestChild.getState().getAction().contains("CD1") || bestChild.getState().getAction().contains("CD2"))
+									setTotalCures(getTotalCures() + 1);
 								myAction += bestChild.getState().getAction();
 								bestNode = bestChild;
 								myActionCounter++;
 							}
+
+							myBoard.setActions(myAction, myPlayerID);
+
+							if (myBoard.getWhoIsPlaying() == myPlayerID) {
+								myAction = evaluateActionsSuggestions(myBoard.getAllActions(), myPlayerID,	copyBoard(myBoard), numberOfPlayers);
+							}
+							System.err.println("Total Treats: " + TotalTreats + " Total Cures: " + TotalCures);
 							System.out.println("MY ACTION: " + myAction);
+
 							try {
-								Thread.sleep(2000);
+								Thread.sleep(500);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
@@ -177,7 +174,7 @@ public class Client {
 							// was my action#AP,"+myPlayerID+"#C,"+myPlayerID+",This should not be
 							// printed..";//"Action";
 							else
-								msgToSend = "#C," + myPlayerID + ",This was my recommendation"; // "Recommendation"
+								msgToSend = "#C," + myPlayerID + "," + myAction;// "Recommendation"
 
 							// NO EDIT FROM HERE AND ON (EXEPT FUNCTIONS OUTSIDE OF MAIN() OF COURSE)
 
@@ -240,14 +237,54 @@ public class Client {
 				// scn.close();
 				s.close();
 				System.out.println("Recources closed succesfully. Goodbye!");
-				System.out.println("Total Treats: " + TotalTreats +  " Total Cures :  " + TotalCures);
+				System.out.println("Total Treats: " + TotalTreats + " Total Cures :  " + TotalCures);
 				System.exit(0);
 				break;
 			}
 
 		}
 	}
-	
+
+	public static String evaluateActionsSuggestions(String[] Actions, int myPlayerID, Board currBoard, int TotalPlayer) {
+		String MyAnswer = "";
+		ArrayList<State> Boards = new ArrayList<State>();
+
+		for (int i = 0; i < TotalPlayer; i++) {
+			if (Actions[i].equals(""))
+				continue;
+
+			String[] action = Actions[i].split("#");
+
+			for (int k = 1; k < action.length; k++) {
+				String myNewAction = "#" + action[k];
+				String[] temp = myNewAction.split(",");
+				if (temp.length == 4) {
+					myNewAction = temp[0] + "," + myPlayerID + "," + temp[2] + "," + temp[3];
+				} else {
+					myNewAction = temp[0] + "," + myPlayerID + "," + temp[2];
+				}
+
+				State s = new State(Server.readActions(myNewAction, copyBoard(currBoard)), myPlayerID, myNewAction, 0);
+				s.setEvaluation(Agent.evaluateBoard(s.getBoard()));
+				if (s.getEvaluation() == Agent.evaluateBoard(currBoard))
+					continue;
+				Boards.add(s);
+			}
+		}
+		Double score = Double.MAX_VALUE;
+		int ActionCounter = 0;
+		for (int i = 0; i < Boards.size(); i++) {
+			if (Boards.get(i).getEvaluation() < score) {
+				score = Boards.get(i).getEvaluation();
+				MyAnswer += Boards.get(i).getAction();
+				ActionCounter++;
+			}
+		}
+		System.out.println("Total Actions: " + ActionCounter + " List size: " + Boards.size());
+		return MyAnswer;
+
+	}
+
 	/* GET ALL POSSIBLE MOVES */
 	public static ArrayList<State> getMoves(int playerID, Board board) {
 		ArrayList<State> possibleStates = new ArrayList<State>();
@@ -273,10 +310,9 @@ public class Client {
 				possibleStates.add(state);
 			}
 		}
-		
+
 		if (!possibleStates.isEmpty())
 			return possibleStates;
-	
 
 		if (isLegalTreatDisease(playerID, curCityName, maxDisease, board)) {
 			copiedBoard = copyBoard(board);
@@ -337,9 +373,9 @@ public class Client {
 
 		return possibleStates;
 	}
-	
+
 	/* THESE ARE USED TO CHECK IF A PLAYER MOVE IS LEGAL */
-	/* IS LEGAL TO USE DRIVE TO A CITY */ 
+	/* IS LEGAL TO USE DRIVE TO A CITY */
 	public static boolean isLegalDriveTo(int playerID, String destination, Board board) {
 		City currentCity = board.searchForCity(board.getPawnsLocations(playerID));
 		boolean isLegal = false;
@@ -350,7 +386,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE DIRECT FLIGHT TO A CITY */ 
+	/* IS LEGAL TO USE DIRECT FLIGHT TO A CITY */
 	public static boolean isLegalDirectFlight(int playerID, String destination, Board board) {
 		boolean isLegal = false;
 
@@ -359,7 +395,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE CHARTER FLIGHT TO A CITY */ 
+	/* IS LEGAL TO USE CHARTER FLIGHT TO A CITY */
 	public static boolean isLegalCharterFlight(int playerID, String destination, Board board) {
 		boolean isLegal = false;
 
@@ -368,7 +404,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE SHUTTLE FLIGHT TO A CITY */ 
+	/* IS LEGAL TO USE SHUTTLE FLIGHT TO A CITY */
 	public static boolean isLegalShuttleFlight(int playerID, String destination, Board board) {
 		boolean isLegal = false;
 
@@ -379,7 +415,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE BUILD RS IN A CITY */ 
+	/* IS LEGAL TO USE BUILD RS IN A CITY */
 	public static boolean isLegalBuildRS(int playerID, String cityToBuild, Board board) {
 		boolean isOperationsExpert = board.getRoleOf(playerID).equals("Operations Expert");
 		boolean isLegal = false;
@@ -394,7 +430,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE TREAT DIDEASE IN A CITY */ 
+	/* IS LEGAL TO USE TREAT DIDEASE IN A CITY */
 	public static boolean isLegalTreatDisease(int playerID, String cityToTreat, String color, Board board) {
 		City currentCity = board.searchForCity(board.getPawnsLocations(playerID));
 		boolean isLegal = false;
@@ -412,7 +448,7 @@ public class Client {
 		return isLegal;
 	}
 
-	/* IS LEGAL TO USE CURE DISEASE IN A CITY */ 
+	/* IS LEGAL TO USE CURE DISEASE IN A CITY */
 	public static boolean isLegalCureDisease(int playerID, String colorToCure, Board board) {
 		boolean isScientist = board.getRoleOf(playerID).equals("Scientist");
 		boolean isLegal = false;
@@ -649,6 +685,22 @@ public class Client {
 
 	public static String toTextOpExpTravel(int playerID, String destination, String colorToThrow) {
 		return "#OET," + playerID + "," + destination + "," + colorToThrow;
+	}
+
+	public static int getTotalCures() {
+		return TotalCures;
+	}
+
+	public static void setTotalCures(int totalCures) {
+		TotalCures = totalCures;
+	}
+
+	public static int getTotalTreats() {
+		return TotalTreats;
+	}
+
+	public static void setTotalTreats(int totalTreats) {
+		TotalTreats = totalTreats;
 	}
 
 }

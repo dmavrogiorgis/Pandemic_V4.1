@@ -1451,4 +1451,9 @@ public class Board implements Serializable{
 	public ArrayList<String> getDiscardedPile() {
 		return discardedPile;
 	}
+
+	public String[] getAllActions() {
+		// TODO Auto-generated method stub
+		return actions;
+	}
 }
